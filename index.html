@@ -250,7 +250,6 @@
   <div class="avatar-preview">🔵</div>
   <p>
     Verás tres objetos en pantalla. El círculo central es tuyo — arrástralo con el ratón o el dedo.<br><br>
-    Acércate a los objetos de los lados y observa cómo reaccionan.<br><br>
     Cada pantalla dura <strong>15 segundos</strong> y cambia automáticamente.
   </p>
   <button class="btn" id="btn-explicacion">Entendido</button>
@@ -263,9 +262,9 @@
     <div id="barra-tiempo"><div id="barra-tiempo-fill"></div></div>
   </div>
   <div id="area-juego">
-    <div class="objeto-fijo" id="objeto-frio">❄️</div>
-    <div class="objeto-fijo" id="objeto-caliente">🔥</div>
-    <div id="objeto-usuario">🔵</div>
+    <div class="objeto-fijo" id="objeto-frio"><img src="frio1.jpg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></div>
+    <div class="objeto-fijo" id="objeto-caliente"><img src="caliente1.jpg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></div>
+    <div id="objeto-usuario"><img src="usuario.jpg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></div>
   </div>
 </div>
 
@@ -298,9 +297,9 @@ for (let i = 0; i < TOTAL_PANTALLAS; i++) {
   });
 }
 
-// Emojis para cada pantalla (frío / caliente)
+// Emojis para cada pantalla (frío / caliente) // AQUÍ CAMBIAS LAS IMÁGENES
 const IMAGENES = [
-  { frio: "❄️", caliente: "🔥" },
+  { frio: "f1.jpg", caliente: "f2.jpg" },
   { frio: "🧊", caliente: "☀️" },
   { frio: "🌨️", caliente: "🌶️" },
   { frio: "⛄", caliente: "🌞" },
@@ -482,9 +481,20 @@ function guardarPantalla() {
 }
 
 function enviarFirebase() {
-  // Aquí irá la conexión a Firebase cuando tengas los datos de configuración
-  console.log("Datos completos:", nombreUsuario, datos);
-  console.log("Firebase: pendiente de configuración");
+    const filas = datos.map((d, i) => ({
+        pantalla: i + 1,
+        frio_mediano: d.frio_mediano,
+        frio_grande: d.frio_grande,
+        frio_enorme: d.frio_enorme,
+        caliente_mediano: d.caliente_mediano,
+        caliente_grande: d.caliente_grande,
+        caliente_enorme: d.caliente_enorme
+    }));
+
+    fetch("https://script.google.com/macros/s/AKfycbyql0qjY2PnYMHlUhpLgm16au5AXGsmxFXYHEMHQzwnV0s1ub-qOXkZUShdAs0J-AxIKQ/exec", {
+        method: "POST",
+        body: JSON.stringify({ nombre: nombreUsuario, filas: filas })
+    });
 }
 </script>
 </body>
