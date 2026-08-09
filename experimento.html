@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Experimento</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #0f0f1a;
+    color: #e8e8f0;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* PANTALLAS */
+  .pantalla { display: none; width: 100vw; height: 100vh; }
+  .pantalla.activa { display: flex; }
+
+  /* INICIO */
+  #pantalla-inicio {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+  }
+
+  #pantalla-inicio h1 {
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    color: #c8c8e0;
+  }
+
+  #pantalla-inicio p {
+    font-size: 0.95rem;
+    color: #888;
+    text-align: center;
+    max-width: 320px;
+    line-height: 1.6;
+  }
+
+  #nombre-input {
+    padding: 12px 20px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #1a1a2e;
+    color: #e8e8f0;
+    font-size: 1rem;
+    width: 280px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #nombre-input:focus { border-color: #6060c0; }
+
+  .btn {
+    padding: 12px 40px;
+    background: #3a3a7a;
+    color: #e8e8f0;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .btn:hover { background: #5050a0; }
+  .btn:disabled { background: #222; color: #555; cursor: default; }
+
+  /* EXPLICACIÓN */
+  #pantalla-explicacion {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+    padding: 40px;
+  }
+
+  #pantalla-explicacion h2 {
+    font-size: 1.4rem;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: #c8c8e0;
+  }
+
+  #pantalla-explicacion p {
+    font-size: 0.95rem;
+    color: #aaa;
+    text-align: center;
+    max-width: 480px;
+    line-height: 1.8;
+  }
+
+  .avatar-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #3a3a7a;
+    border: 2px solid #6060c0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+  }
+
+  /* INTERACCIÓN */
+  #pantalla-interaccion {
+    position: relative;
+    background: #111120;
+    flex-direction: column;
+  }
+
+  #barra-superior {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    background: rgba(15,15,26,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 10;
+    border-bottom: 1px solid #222;
+  }
+
+  #info-pantalla {
+    font-size: 0.8rem;
+    color: #666;
+    letter-spacing: 0.1em;
+  }
+
+  #barra-tiempo {
+    width: 200px;
+    height: 4px;
+    background: #222;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  #barra-tiempo-fill {
+    height: 100%;
+    background: #6060c0;
+    width: 100%;
+    transition: width 0.1s linear;
+  }
+
+  #area-juego {
+    position: absolute;
+    top: 48px; left: 0; right: 0; bottom: 0;
+  }
+
+  .objeto-fijo {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    transform-origin: center center;
+    transition: none;
+    pointer-events: none;
+  }
+
+  #objeto-frio {
+    left: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: radial-gradient(circle, #1a3a5c, #0a1a2e);
+    border: 2px solid #2a5a8c;
+    box-shadow: 0 0 30px rgba(40, 100, 180, 0.3);
+  }
+
+  #objeto-caliente {
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: radial-gradient(circle, #5c2a1a, #2e0a0a);
+    border: 2px solid #8c4a2a;
+    box-shadow: 0 0 30px rgba(180, 80, 40, 0.3);
+  }
+
+  #objeto-usuario {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #4a4a8a, #2a2a5a);
+    border: 2px solid #8080c0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    cursor: grab;
+    z-index: 5;
+    box-shadow: 0 0 20px rgba(100, 100, 200, 0.4);
+    touch-action: none;
+  }
+
+  #objeto-usuario:active { cursor: grabbing; }
+
+  /* FINAL */
+  #pantalla-final {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+  }
+
+  #pantalla-final h2 {
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    color: #c8c8e0;
+  }
+
+  #pantalla-final p {
+    font-size: 0.95rem;
+    color: #666;
+    letter-spacing: 0.05em;
+  }
+
+  .error-msg {
+    color: #c05050;
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- PANTALLA INICIO -->
+<div id="pantalla-inicio" class="pantalla activa">
+  <h1>EXPERIMENTO</h1>
+  <p>Introduce tu nombre o código de participante para comenzar.</p>
+  <input type="text" id="nombre-input" placeholder="Nombre / ID" autocomplete="off" />
+  <p id="error-nombre" class="error-msg" style="display:none">Por favor introduce un nombre.</p>
+  <button class="btn" id="btn-inicio">Comenzar</button>
+</div>
+
+<!-- PANTALLA EXPLICACIÓN -->
+<div id="pantalla-explicacion" class="pantalla">
+  <h2>INSTRUCCIONES</h2>
+  <div class="avatar-preview">🔵</div>
+  <p>
+    Verás tres objetos en pantalla. El círculo central es tuyo — arrástralo con el ratón o el dedo.<br><br>
+    Acércate a los objetos de los lados y observa cómo reaccionan.<br><br>
+    Cada pantalla dura <strong>15 segundos</strong> y cambia automáticamente.
+  </p>
+  <button class="btn" id="btn-explicacion">Entendido</button>
+</div>
+
+<!-- PANTALLA INTERACCIÓN -->
+<div id="pantalla-interaccion" class="pantalla">
+  <div id="barra-superior">
+    <span id="info-pantalla">Pantalla 1 / 15</span>
+    <div id="barra-tiempo"><div id="barra-tiempo-fill"></div></div>
+  </div>
+  <div id="area-juego">
+    <div class="objeto-fijo" id="objeto-frio">❄️</div>
+    <div class="objeto-fijo" id="objeto-caliente">🔥</div>
+    <div id="objeto-usuario">🔵</div>
+  </div>
+</div>
+
+<!-- PANTALLA FINAL -->
+<div id="pantalla-final" class="pantalla">
+  <h2>FIN</h2>
+  <p>Gracias por participar. Los datos han sido registrados.</p>
+</div>
+
+<script>
+// ─── ESTADO GLOBAL ───────────────────────────────────────────────
+const TOTAL_PANTALLAS = 15;
+const DURACION_MS = 15000;
+const ESCALA_MAX = 4;
+
+let nombreUsuario = "";
+let pantallaActual = 0;
+let tiempoInicio = 0;
+let ultimoTiempoRegistro = 0;
+let escalaA = 1, escalaB = 1;
+let timerInterval = null;
+let arrastrando = false;
+
+// Datos: 15 pantallas x 6 valores
+let datos = [];
+for (let i = 0; i < TOTAL_PANTALLAS; i++) {
+  datos.push({
+    frio_mediano: 0, frio_grande: 0, frio_enorme: 0,
+    caliente_mediano: 0, caliente_grande: 0, caliente_enorme: 0
+  });
+}
+
+// Emojis para cada pantalla (frío / caliente)
+const IMAGENES = [
+  { frio: "❄️", caliente: "🔥" },
+  { frio: "🧊", caliente: "☀️" },
+  { frio: "🌨️", caliente: "🌶️" },
+  { frio: "⛄", caliente: "🌞" },
+  { frio: "🌊", caliente: "🏜️" },
+  { frio: "🐧", caliente: "🦁" },
+  { frio: "💙", caliente: "❤️" },
+  { frio: "🫐", caliente: "🍊" },
+  { frio: "🌙", caliente: "⚡" },
+  { frio: "🎿", caliente: "🏖️" },
+  { frio: "🧊", caliente: "🔥" },
+  { frio: "❄️", caliente: "☀️" },
+  { frio: "🌬️", caliente: "🌋" },
+  { frio: "⛰️", caliente: "🌴" },
+  { frio: "🫧", caliente: "🕯️" },
+];
+
+// ─── ELEMENTOS DOM ───────────────────────────────────────────────
+const objetoUsuario = document.getElementById("objeto-usuario");
+const objetoFrio = document.getElementById("objeto-frio");
+const objetoCaliente = document.getElementById("objeto-caliente");
+const barraFill = document.getElementById("barra-tiempo-fill");
+const infoPantalla = document.getElementById("info-pantalla");
+
+// ─── NAVEGACIÓN ──────────────────────────────────────────────────
+function mostrarPantalla(id) {
+  document.querySelectorAll(".pantalla").forEach(p => p.classList.remove("activa"));
+  document.getElementById(id).classList.add("activa");
+}
+
+document.getElementById("btn-inicio").addEventListener("click", () => {
+  const val = document.getElementById("nombre-input").value.trim();
+  if (!val) {
+    document.getElementById("error-nombre").style.display = "block";
+    return;
+  }
+  nombreUsuario = val;
+  document.getElementById("error-nombre").style.display = "none";
+  mostrarPantalla("pantalla-explicacion");
+});
+
+document.getElementById("btn-explicacion").addEventListener("click", () => {
+  pantallaActual = 0;
+  iniciarPantalla();
+});
+
+// ─── LÓGICA INTERACCIÓN ──────────────────────────────────────────
+function iniciarPantalla() {
+  mostrarPantalla("pantalla-interaccion");
+
+  // Reset datos de esta pantalla
+  escalaA = 1; escalaB = 1;
+  objetoFrio.style.transform = "translateY(-50%) scale(1)";
+  objetoCaliente.style.transform = "translateY(-50%) scale(1)";
+
+  // Emojis de esta pantalla
+  const imgs = IMAGENES[pantallaActual];
+  objetoFrio.textContent = imgs.frio;
+  objetoCaliente.textContent = imgs.caliente;
+
+  // Info barra
+  infoPantalla.textContent = `Pantalla ${pantallaActual + 1} / ${TOTAL_PANTALLAS}`;
+  barraFill.style.width = "100%";
+
+  // Posición inicial del usuario: centro
+  const area = document.getElementById("area-juego");
+  const areaRect = area.getBoundingClientRect();
+  objetoUsuario.style.left = (areaRect.width / 2 - 35) + "px";
+  objetoUsuario.style.top = (areaRect.height / 2 - 35) + "px";
+
+  tiempoInicio = Date.now();
+  ultimoTiempoRegistro = tiempoInicio;
+
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(tick, 100);
+}
+
+function tick() {
+  const ahora = Date.now();
+  const transcurrido = ahora - tiempoInicio;
+
+  // Barra de tiempo
+  const pct = Math.max(0, 100 - (transcurrido / DURACION_MS) * 100);
+  barraFill.style.width = pct + "%";
+
+  // Acumular tiempo
+  actualizarTiempo(ahora);
+
+  if (transcurrido >= DURACION_MS) {
+    clearInterval(timerInterval);
+    guardarPantalla();
+    pantallaActual++;
+    if (pantallaActual >= TOTAL_PANTALLAS) {
+      mostrarPantalla("pantalla-final");
+      enviarFirebase();
+    } else {
+      iniciarPantalla();
+    }
+  }
+}
+
+function actualizarTiempo(ahora) {
+  if (ultimoTiempoRegistro > 0) {
+    const seg = (ahora - ultimoTiempoRegistro) / 1000;
+    const d = datos[pantallaActual];
+
+    if (escalaA > escalaB) {
+      if (escalaA < 2) d.frio_mediano += seg;
+      else if (escalaA < 3) d.frio_grande += seg;
+      else d.frio_enorme += seg;
+    } else if (escalaB > escalaA) {
+      if (escalaB < 2) d.caliente_mediano += seg;
+      else if (escalaB < 3) d.caliente_grande += seg;
+      else d.caliente_enorme += seg;
+    }
+  }
+  ultimoTiempoRegistro = ahora;
+}
+
+function calcularEscala(distPropia, distOtro) {
+  if (distPropia >= distOtro) return 1;
+  const t = 1 - (distPropia / distOtro);
+  return 1 + t * (ESCALA_MAX - 1);
+}
+
+function actualizarSize() {
+  const rUsuario = objetoUsuario.getBoundingClientRect();
+  const xu = rUsuario.left + rUsuario.width / 2;
+  const yu = rUsuario.top + rUsuario.height / 2;
+
+  const rFrio = objetoFrio.getBoundingClientRect();
+  const xa = rFrio.left + rFrio.width / 2;
+  const ya = rFrio.top + rFrio.height / 2;
+  const distA = Math.hypot(xa - xu, ya - yu);
+
+  const rCal = objetoCaliente.getBoundingClientRect();
+  const xb = rCal.left + rCal.width / 2;
+  const yb = rCal.top + rCal.height / 2;
+  const distB = Math.hypot(xb - xu, yb - yu);
+
+  escalaA = calcularEscala(distA, distB);
+  escalaB = calcularEscala(distB, distA);
+
+  objetoFrio.style.transform = `translateY(-50%) scale(${escalaA})`;
+  objetoCaliente.style.transform = `translateY(-50%) scale(${escalaB})`;
+}
+
+// ─── DRAG (ratón y táctil) ───────────────────────────────────────
+function moverObjeto(x, y) {
+  const area = document.getElementById("area-juego").getBoundingClientRect();
+  const nx = Math.max(0, Math.min(x - area.left - 35, area.width - 70));
+  const ny = Math.max(0, Math.min(y - area.top - 35, area.height - 70));
+  objetoUsuario.style.left = nx + "px";
+  objetoUsuario.style.top = ny + "px";
+  actualizarSize();
+}
+
+objetoUsuario.addEventListener("mousedown", () => { arrastrando = true; });
+document.addEventListener("mousemove", (e) => { if (arrastrando) moverObjeto(e.clientX, e.clientY); });
+document.addEventListener("mouseup", () => { arrastrando = false; });
+
+objetoUsuario.addEventListener("touchstart", (e) => { arrastrando = true; e.preventDefault(); }, { passive: false });
+document.addEventListener("touchmove", (e) => {
+  if (arrastrando) { moverObjeto(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }
+}, { passive: false });
+document.addEventListener("touchend", () => { arrastrando = false; });
+
+// ─── GUARDAR Y ENVIAR ────────────────────────────────────────────
+function r3(val) { return Math.round(val * 1000) / 1000; }
+
+function guardarPantalla() {
+  const d = datos[pantallaActual];
+  d.frio_mediano = r3(d.frio_mediano);
+  d.frio_grande = r3(d.frio_grande);
+  d.frio_enorme = r3(d.frio_enorme);
+  d.caliente_mediano = r3(d.caliente_mediano);
+  d.caliente_grande = r3(d.caliente_grande);
+  d.caliente_enorme = r3(d.caliente_enorme);
+  console.log(`Pantalla ${pantallaActual + 1}:`, d);
+}
+
+function enviarFirebase() {
+  // Aquí irá la conexión a Firebase cuando tengas los datos de configuración
+  console.log("Datos completos:", nombreUsuario, datos);
+  console.log("Firebase: pendiente de configuración");
+}
+</script>
+</body>
+</html>
