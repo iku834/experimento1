@@ -300,20 +300,20 @@ for (let i = 0; i < TOTAL_PANTALLAS; i++) {
 // Emojis para cada pantalla (frío / caliente) // AQUÍ CAMBIAS LAS IMÁGENES
 const IMAGENES = [
   { frio: "f1.jpg", caliente: "f2.jpg" },
-  { frio: "🧊", caliente: "☀️" },
-  { frio: "🌨️", caliente: "🌶️" },
-  { frio: "⛄", caliente: "🌞" },
-  { frio: "🌊", caliente: "🏜️" },
-  { frio: "🐧", caliente: "🦁" },
-  { frio: "💙", caliente: "❤️" },
-  { frio: "🫐", caliente: "🍊" },
-  { frio: "🌙", caliente: "⚡" },
-  { frio: "🎿", caliente: "🏖️" },
-  { frio: "🧊", caliente: "🔥" },
-  { frio: "❄️", caliente: "☀️" },
-  { frio: "🌬️", caliente: "🌋" },
-  { frio: "⛰️", caliente: "🌴" },
-  { frio: "🫧", caliente: "🕯️" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
+  { frio: "f1.jpg", caliente: "f1.jpg" },
 ];
 
 // ─── ELEMENTOS DOM ───────────────────────────────────────────────
@@ -354,10 +354,10 @@ function iniciarPantalla() {
   objetoFrio.style.transform = "translateY(-50%) scale(1)";
   objetoCaliente.style.transform = "translateY(-50%) scale(1)";
 
-  // Emojis de esta pantalla
+  // Fotos de esta pantalla
   const imgs = IMAGENES[pantallaActual];
-  objetoFrio.textContent = imgs.frio;
-  objetoCaliente.textContent = imgs.caliente;
+  objetoFrio.querySelector("img").src = imgs.frio;
+  objetoCaliente.querySelector("img").src = imgs.caliente;
 
   // Info barra
   infoPantalla.textContent = `Pantalla ${pantallaActual + 1} / ${TOTAL_PANTALLAS}`;
